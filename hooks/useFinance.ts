@@ -2,6 +2,9 @@ import { Transaction, Budget } from "@/lib/dataType";
 import { getDay } from "date-fns";
 import { useState, useEffect } from "react";
 
+// 1. Add this helper check at the top of useFinance.ts
+const isBrowser = typeof window !== "undefined";
+
 const useFinance = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budget, setBudget] = useState<Budget | null>(null);
@@ -13,8 +16,10 @@ const useFinance = () => {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
+  // Only run if we are in the browser
   // 1. UPDATED: Pure Local Storage Logic with your specific Dummy structure
   useEffect(() => {
+    if (!isBrowser) return;
     const savedTransactions = localStorage.getItem("transactions");
     const savedBudget = localStorage.getItem("budget");
     // This flag checks if the user intentionally cleared the data
