@@ -45,6 +45,14 @@ interface BarChartProps {
 }
 
 export default function Barchart({ getChartData }: BarChartProps) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
+  if (!isReady)
+    return <div className="h-[300px] bg-slate-50 animate-pulse rounded-2xl" />;
   return (
     <Card className="rounded-2xl border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">

@@ -1,43 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { type Transaction, type Budget } from "@/lib/dataType";
-import {
-  TrendingUp,
-  TrendingDown,
-  Plus,
-  MoreVertical,
-  Filter,
-  Trash2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { type Transaction } from "@/lib/dataType";
+import { TrendingUp, TrendingDown, MoreVertical } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { format, getDay } from "date-fns";
 import useFinance from "@/hooks/useFinance";
 
