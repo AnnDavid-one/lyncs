@@ -1,9 +1,11 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+// app/layout.tsx
+
+import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Wallet,
   LayoutDashboard,
@@ -18,17 +20,18 @@ import {
   Search,
   Moon,
   Bell,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
-import Sidebar from '@/components/Sidebar';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import Sidebar from "@/components/Sidebar";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Uni Bank | Personal Finance Dashboard',
-  description: 'A comprehensive personal finance tracker built for the Lyncs frontend assessment.',
+  title: "Uni Bank | Personal Finance Dashboard",
+  description:
+    "A comprehensive personal finance tracker built for the Lyncs frontend assessment.",
 };
 
 function Header() {
@@ -49,7 +52,7 @@ function Header() {
           <div className="text-right">
             <p className="text-sm font-medium">Welcome Back, Alex</p>
             <p className="text-xs text-slate-500">
-              Last Login: {format(new Date(), 'dd MMMM yyyy')}
+              Last Login: {format(new Date(), "dd MMMM yyyy")}
             </p>
           </div>
           <Button size="icon" variant="ghost" className="rounded-xl">
@@ -88,9 +91,7 @@ export default function RootLayout({
           <div className="flex-1 flex flex-col">
             <Header />
 
-            <main className="flex-1">
-              {children}
-            </main>
+            <main className="flex-1">{children}</main>
           </div>
         </div>
       </body>

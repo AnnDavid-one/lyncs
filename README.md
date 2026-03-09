@@ -75,6 +75,20 @@ Browser Storage: Persistence is tied to the specific browser/device used.
 
 Currency: Defaulted to USD ($) for this assessment.
 
+## 🛠️ Technical Challenges & Solutions
+
+### 1. Build-Time Syntax Error (Radix UI / Next.js)
+
+- **The Issue:** `next build` failed during "Collecting page data" with `SyntaxError: missing ) after argument list`.
+- **The Cause:** A bug in the Radix UI primitive error logger. Even with `"use client"`, Next.js pre-renders components during the build. If a component (like `Progress`) received `NaN` or `undefined` before hydration, the library's internal error-handling string was malformed, crashing the Node.js build process.
+- **The Solution:** Implemented **Dynamic Imports** with `ssr: false` for the `Dashboard` components. This bypasses the server-side pre-rendering for these specific UI elements, ensuring the build succeeds.
+
+### 2. LocalStorage Hydration Mismatch
+
+- **The Issue:** Data would not persist or would cause hydration warnings when reopening the browser.
+- **The Cause:** Next.js server-side HTML did not match the client-side state because `localStorage` is only available in the browser.
+- **The Solution:** Added a `mounted` state guard using `useEffect`. This ensures the application only attempts to read from `localStorage` and seed dummy data once it is safely running in the browser.
+
 ## 📖 Usage
 
 1.  **Get Started**: On your first visit, the dashboard will automatically seed with a "Salary" transaction so you can see the charts in action.

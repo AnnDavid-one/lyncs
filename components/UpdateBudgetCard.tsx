@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { type Transaction, type Budget } from "@/lib/dataType";
-import {
-  TrendingUp,
-  TrendingDown,
-  Plus,
-  MoreVertical,
-  Filter,
-  Trash2,
-} from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,13 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 
 interface BudgetProps {
@@ -49,6 +34,26 @@ export default function UpdateBudgetCard({
   budgetStatus,
   updateBudget,
 }: BudgetProps) {
+  // --- MOUNT GUARD ---
+  // This prevents the build server from crashing on the Progress component
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Ensure we are working with valid numbers
+  const safeBudget = Number(budgetAmount) || 0;
+  const safeUsed = Number(budgetUsed) || 0;
+  const safeExpense = Number(totalExpense) || 0;
+
+  // Don't render the problematic parts until we are safely in the browser
+  if (!mounted) {
+    return (
+      <Card className="rounded-2xl border-0 shadow-sm h-[180px] animate-pulse bg-slate-50" />
+    );
+  }
+
   return (
     <Card className="rounded-2xl border-0 shadow-sm">
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
@@ -62,7 +67,7 @@ export default function UpdateBudgetCard({
             </Button>
           </DialogTrigger>
           <DialogContent className="rounded-2xl">
-            <BudgetForm currentBudget={budgetAmount} onSubmit={updateBudget} />
+            <BudgetForm currentBudget={safeBudget} onSubmit={updateBudget} />
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -71,16 +76,19 @@ export default function UpdateBudgetCard({
           <span className="text-sm text-slate-600">Budget</span>
           <span className="text-lg font-bold">
             $
-            {budgetAmount.toLocaleString("en-US", {
+            {safeBudget.toLocaleString("en-US", {
               minimumFractionDigits: 2,
             })}
           </span>
         </div>
-        <Progress value={Math.min(budgetUsed, 100)} className="h-2" />
+
+        {/* This component crashes the build if value is NaN. It is now safe. */}
+        <Progress value={Math.min(safeUsed, 100)} className="h-2" />
+
         <div className="flex justify-between items-center">
           <span className="text-xs text-slate-500">
             $
-            {totalExpense.toLocaleString("en-US", {
+            {safeExpense.toLocaleString("en-US", {
               minimumFractionDigits: 2,
             })}{" "}
             spent
@@ -90,7 +98,7 @@ export default function UpdateBudgetCard({
               budgetStatus === "Over" ? "text-red-600" : "text-green-600"
             }`}
           >
-            {budgetStatus} Budget
+            {budgetStatus || "Under"} Budget
           </span>
         </div>
       </CardContent>
@@ -109,7 +117,8 @@ function BudgetForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(parseFloat(amount));
+    const val = parseFloat(amount);
+    onSubmit(isNaN(val) ? 0 : val);
   };
 
   return (

@@ -64,11 +64,15 @@ const useFinance = () => {
 
   // 2. UPDATED: Add Transaction locally with timestamps
   const addTransaction = (formData: any) => {
+    if (!isBrowser) return;
     localStorage.removeItem("isDataCleared"); // Reset the flag
     const now = new Date().toISOString();
     const newTransaction: Transaction = {
       ...formData,
-      id: crypto.randomUUID(),
+      id:
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(7),
       created_at: now,
       updated_at: now,
     };
@@ -81,6 +85,7 @@ const useFinance = () => {
 
   // 3. UPDATED: Update Budget locally with timestamps
   const updateBudget = (amount: number) => {
+    if (!isBrowser) return;
     const now = new Date().toISOString();
     const updatedBudget = {
       ...budget,
@@ -94,30 +99,42 @@ const useFinance = () => {
     setIsBudgetDialogOpen(false);
   };
 
-  // --- LOGIC CALCULATIONS (Unchanged) ---
-  const currentMonthTransactions = transactions.filter((t) => {
+  // --- LOGIC CALCULATIONS (Fixed for Build) ---
+
+  // 1. Ensure transactions is always an array before filtering
+  const currentMonthTransactions = (transactions || []).filter((t) => {
+    if (!t.date) return false;
     const date = new Date(t.date);
     return (
       date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear
     );
   });
 
-  const totalIncome = currentMonthTransactions
+  // 2. Add Number() casting and default to 0
+  const totalIncome = (currentMonthTransactions || [])
     .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
-  const totalExpense = currentMonthTransactions
+  const totalExpense = (currentMonthTransactions || [])
     .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const totalBalance = totalIncome - totalExpense;
+
+  // 3. Fallback for budgetAmount to prevent Division by Zero
   const budgetAmount = budget?.amount || 2000;
-  const budgetUsed = (totalExpense / budgetAmount) * 100;
+
+  // 4. Ensure budgetUsed doesn't crash if budgetAmount is missing
+  const budgetUsed = budgetAmount > 0 ? (totalExpense / budgetAmount) * 100 : 0;
   const budgetStatus = totalExpense > budgetAmount ? "Over" : "Under";
 
   const getChartData = () => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const data = days.map((day, index) => {
+
+    // Return empty data if not in browser to save build time
+    if (!isBrowser) return days.map((day) => ({ day, Income: 0, Expenses: 0 }));
+
+    return days.map((day, index) => {
       const dayTransactions = currentMonthTransactions.filter((t) => {
         const date = new Date(t.date);
         return getDay(date) === index;
@@ -125,29 +142,30 @@ const useFinance = () => {
 
       const income = dayTransactions
         .filter((t) => t.type === "income")
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
       const expenses = dayTransactions
         .filter((t) => t.type === "expense")
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
       return { day, Income: income, Expenses: expenses };
     });
-
-    return data;
   };
 
   const clearAllData = () => {
+    if (typeof window === "undefined") return;
+
     localStorage.removeItem("transactions");
     localStorage.removeItem("budget");
     // Set the flag so the dummy data doesn't come back on reload
     localStorage.setItem("isDataCleared", "true");
 
     setIsClearDialogOpen(false);
-    window.location.reload(); // Resets to your dummy "Salary" state
+    window.location.reload();
   };
   return {
     transactions,
+    loading,
     budget,
     isAddDialogOpen,
     addTransaction,

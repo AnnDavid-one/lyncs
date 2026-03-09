@@ -40,12 +40,38 @@ import {
 } from "recharts";
 import { format, getDay } from "date-fns";
 import useFinance from "@/hooks/useFinance";
-import ClearDialog from "@/components/ClearDialog";
-import AddDialog from "@/components/AddDialog";
-import UpdateBudgetCard from "@/components/UpdateBudgetCard";
-import Barchart from "@/components/Barchart";
+
+import dynamic from "next/dynamic";
+
+// 2. DYNAMICALLY IMPORT THE "PROBLEM" COMPONENTS
+// This tells Next.js: "Skip these entirely during the build command"
+const UpdateBudgetCard = dynamic(
+  () => import("@/components/UpdateBudgetCard"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[180px] bg-slate-50 animate-pulse rounded-2xl" />
+    ),
+  },
+);
+
+const Barchart = dynamic(() => import("@/components/Barchart"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[300px] bg-slate-50 animate-pulse rounded-2xl" />
+  ),
+});
+
+const ClearDialog = dynamic(() => import("@/components/ClearDialog"), {
+  ssr: false,
+});
+const AddDialog = dynamic(() => import("@/components/AddDialog"), {
+  ssr: false,
+});
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+
   const {
     transactions,
     budget,
@@ -67,6 +93,19 @@ export default function Dashboard() {
     clearAllData,
   } = useFinance();
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 2. If not mounted, return a loading shell or null
+  // This stops the build server from executing the logic below
+  if (!mounted) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse text-slate-400">Loading Dashboard...</div>
+      </div>
+    );
+  }
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,5 +1,5 @@
-// app/transactions/page.tsx
-export default function TransactionsPage() {
+// app/cards/page.tsx
+export default function Cards() {
   return (
     <div className="p-8 flex flex-col items-center justify-center min-h-[60vh] space-y-4">
       <div className="p-4 bg-income/10 rounded-full">
