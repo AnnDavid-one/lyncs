@@ -273,7 +273,9 @@ function TransactionTable({ transactions }: { transactions: Transaction[] }) {
                 {transaction.category}
               </td>
               <td className="py-4 px-4 text-sm text-slate-600">
-                {format(new Date(transaction.date), "MM/dd/yyyy")}
+                {transaction.date
+                  ? format(new Date(transaction.date), "MM/dd/yyyy")
+                  : "N/A"}
               </td>
               <td
                 className={`py-4 px-4 text-right text-sm font-medium ${
